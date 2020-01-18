@@ -16,6 +16,7 @@ async function main(){
     const messages = await receiver.receiveMessages(10);
     for(var i = 0; i < messages.length; i++) {
       XHR.open('POST', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/platelocation', true, "equipe43", "WFynQsLZ3u7PYv22");
+
       XHR.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
       XHR.send(JSON.stringify(messages[i].body));
     }
