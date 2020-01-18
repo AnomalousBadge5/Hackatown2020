@@ -15,7 +15,6 @@ async function main(){
   try {
     const messages = await receiver.receiveMessages(10);
     console.log("Received messages:");
-<<<<<<< Updated upstream
     //console.log(messages.map(message => message.body));
     for(var i = 0; i < messages.length; i++) {
       var aEnvoyer = {
@@ -28,12 +27,7 @@ async function main(){
       XHR.open('POST', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/platelocation', true, "equipe43", "WFynQsLZ3u7PYv22");
       XHR.send(aEnvoyer.toString());
     }
-=======
-    console.log(messages[0].body.LicensePlateImageJpg/*.map(message => message.body)*/);
-    //console.log("test" + messages)
-    XHR.open('POST', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/platelocation', true, "equipe43", "WFynQsLZ3u7PYv22");
-    XHR.send(messages[0].body);
->>>>>>> Stashed changes
+
     await subscriptionClient.close();
   } finally {
     await sbClient.close();
