@@ -14,19 +14,10 @@ async function main(){
 
   try {
     const messages = await receiver.receiveMessages(10);
-    console.log("Received messages:");
-    //console.log(messages.map(message => message.body));
     for(var i = 0; i < messages.length; i++) {
-      var aEnvoyer = {
-        LicensePlateCaptureTime: messages[i].body.LicensePlateCaptureTime,
-        LicensePlate: messages[i].body.LicensePlate,
-        Latitude: messages[i].body.Latitude,
-        Longitude: messages[i].body.Longitude
-      };
-      console.log(aEnvoyer);
       XHR.open('POST', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/platelocation', true, "equipe43", "WFynQsLZ3u7PYv22");
       XHR.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
-      XHR.send(aEnvoyer.toString());
+      XHR.send(JSON.stringify(messages[i].body));
     }
 
     await subscriptionClient.close();
