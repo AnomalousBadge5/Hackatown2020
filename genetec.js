@@ -24,8 +24,6 @@ async function main(){
 
 
     var plates = getPlates();
-    console.log("Plates: ");
-    console.log(plates);
     var messagesMAJ;
     var notifDeMiseAjour = false;
     while(true) {
@@ -34,8 +32,6 @@ async function main(){
         messagesMAJ = receiverMAJ.receiveMessages(1).then(function(value) {
           if(messagesMAJ[0] != undefined) {
             plates = getPlates(XHR);
-            console.log("mie a jour faite: ");
-            console.log(plates);
             messagesMAJ[0] = undefined;
           }
           notifDeMiseAjour = false;
