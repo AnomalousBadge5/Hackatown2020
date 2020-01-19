@@ -21,40 +21,43 @@ async function main(){
 
   try {
 
-    var plates = [];
+
+
+    var plates = getPlates();
+    console.log("Plates: ");
+    console.log(plates);
     var messagesMAJ;
-    var miseAjourAFaire = true;
     var notifDeMiseAjour = false;
-    //console.log(plates);
     while(true) {
       const messages = await receiver.receiveMessages(10);
       if(notifDeMiseAjour == false) {
         messagesMAJ = receiverMAJ.receiveMessages(1).then(function(value) {
           if(messagesMAJ[0] != undefined) {
-            miseAjourAFaire = true;
-            console.log(messagesMAJ);
+            plates = getPlates(XHR);
+            console.log("mie a jour faite: ");
+            console.log(plates);
             messagesMAJ[0] = undefined;
           }
           notifDeMiseAjour = false;
         });
         notifDeMiseAjour = true;
       }
-      if(miseAjourAFaire) {
-        console.log("mise a jour des donnees:");
-        miseAjourAFaire = false;
-        //plates = getPlates(XHR);
-      }
-      for(var j = 0; j < plates.length; j++) {
-        for (var i = 0; i < messages.length; i++) {
-          if(plates[j] == messages[i].LicensePlate) {
-            XHR.open('POST', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/platelocation', true, "equipe43", "WFynQsLZ3u7PYv22");
-            XHR.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
-            XHR.send(JSON.stringify(messages[i].body));
+
+      if(plates != undefined && messages != undefined) {
+        console.log("Vérification des paires de plaques et messages");
+        for (var j = 0; j < plates.length; j++) {
+          for (var i = 0; i < messages.length; i++) {
+            if (plates[j] == messages[i].body.LicensePlate) {
+              XHR.open('POST', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/platelocation', true, "equipe43", "WFynQsLZ3u7PYv22");
+              XHR.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
+              console.log("envoi de donnees: ");
+              console.log(plates[j]);
+              XHR.send(JSON.stringify(messages[i].body));
+            }
           }
         }
       }
     }
-    await subscriptionClient.close();
   } finally {
     await sbClient.close();
   }
@@ -64,9 +67,10 @@ main().catch((err) => {
   console.log("Error occurred: ", err);
 });
 
-// function getPlates(XMLHttpRequest XHR) {
-//   XHR.open('GET', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/wantedplates', false, "equipe43", "WFynQsLZ3u7PYv22");
-//   XHR.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
-//   XHR.send('');
-//   var plates = XHR.responseText;
-// }
+function getPlates() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/wantedplates', false, "equipe43", "WFynQsLZ3u7PYv22");
+  xhr.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
+  xhr.send('');
+  return  JSON.parse(xhr.responseText);
+}
