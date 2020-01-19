@@ -20,17 +20,40 @@ async function main(){
   var XHRMAJ = new XMLHttpRequest();
 
   try {
-    const messages = await receiver.receiveMessages(10);
-    console.log("test1");
-    const messagesMAJ = await receiverMAJ.receiveMessages(1);
-    console.log("test2");
-    for(var i = 0; i < messages.length; i++) {
-      XHR.open('POST', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/platelocation', true, "equipe43", "WFynQsLZ3u7PYv22");
 
-      XHR.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
-      XHR.send(JSON.stringify(messages[i].body));
+    var plates = [];
+    var messagesMAJ;
+    var miseAjourAFaire = true;
+    var notifDeMiseAjour = false;
+    //console.log(plates);
+    while(true) {
+      const messages = await receiver.receiveMessages(10);
+      if(notifDeMiseAjour == false) {
+        messagesMAJ = receiverMAJ.receiveMessages(1).then(function(value) {
+          if(messagesMAJ[0] != undefined) {
+            miseAjourAFaire = true;
+            console.log(messagesMAJ);
+            messagesMAJ[0] = undefined;
+          }
+          notifDeMiseAjour = false;
+        });
+        notifDeMiseAjour = true;
+      }
+      if(miseAjourAFaire) {
+        console.log("mise a jour des donnees:");
+        miseAjourAFaire = false;
+        //plates = getPlates(XHR);
+      }
+      for(var j = 0; j < plates.length; j++) {
+        for (var i = 0; i < messages.length; i++) {
+          if(plates[j] == messages[i].LicensePlate) {
+            XHR.open('POST', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/platelocation', true, "equipe43", "WFynQsLZ3u7PYv22");
+            XHR.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
+            XHR.send(JSON.stringify(messages[i].body));
+          }
+        }
+      }
     }
-
     await subscriptionClient.close();
   } finally {
     await sbClient.close();
@@ -41,3 +64,9 @@ main().catch((err) => {
   console.log("Error occurred: ", err);
 });
 
+// function getPlates(XMLHttpRequest XHR) {
+//   XHR.open('GET', 'https://licenseplatevalidator.azurewebsites.net/api/lpr/wantedplates', false, "equipe43", "WFynQsLZ3u7PYv22");
+//   XHR.setRequestHeader("Authorization", "Basic ZXF1aXBlNDM6V0Z5blFzTFozdTdQWXYyMg==");
+//   XHR.send('');
+//   var plates = XHR.responseText;
+// }
